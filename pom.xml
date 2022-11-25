@@ -8,12 +8,12 @@
         <version>2.7.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>coffe-be</artifactId>
+    <groupId>com.ecommerce</groupId>
+    <artifactId>ecomerce-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>coffe-be</name>
-    <description>Demo project for Spring Boot</description>
+    <name>ecomerce-service</name>
+    <description>ecomerce-service</description>
     <properties>
         <java.version>1.8</java.version>
         <maven.test.skip>true</maven.test.skip>
