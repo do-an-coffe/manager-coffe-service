@@ -14,22 +14,22 @@ import java.util.Date;
 @AllArgsConstructor
 public class UserResponse {
 
-    private Long id;
+  private Long id;
 
-    @JsonProperty("full_name")
-    private String fullName;
+  @JsonProperty("full_name")
+  private String fullName;
 
-    private String email;
+  private String email;
 
-    @JsonProperty("phone")
-    private String phoneNumber;
+  @JsonProperty("phone")
+  private String phoneNumber;
 
-    private String address;
+  private String address;
 
-    @Column(name = "birthday")
-    @JsonFormat(pattern = "YYYY-MM-dd")
-    private Date birthday;
+  @Column(name = "birthday")
+  @JsonFormat(pattern = "YYYY-MM-dd")
+  private Date birthday;
 
-    private String status;
+  private String status;
 
 }

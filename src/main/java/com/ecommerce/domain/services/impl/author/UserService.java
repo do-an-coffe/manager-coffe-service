@@ -38,133 +38,133 @@ import java.util.List;
 @Log4j2
 public class UserService extends BaseAbtractService implements BaseService<User, Long> {
 
-    @Autowired
-    private PasswordEncoder encoder;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtTokenProvider tokenProvider;
+  @Autowired
+  private PasswordEncoder encoder;
+  @Autowired
+  private AuthenticationManager authenticationManager;
+  @Autowired
+  private JwtTokenProvider tokenProvider;
 
-    //findById
-    public UserDetails loadUserById(long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) {
-            throw new UsernameNotFoundException("not found");
-        }
-        return new CustomUserDetails(user);
+  //findById
+  public UserDetails loadUserById(long id) {
+    User user = userRepository.findById(id).orElse(null);
+    if (user == null) {
+      throw new UsernameNotFoundException("not found");
+    }
+    return new CustomUserDetails(user);
+  }
+
+  //register
+  public ResponseEntity<?> register(RegisterRequest registerRequest) {
+    boolean emailExits = userRepository.existsByEmail(registerRequest.getEmail());
+    if (emailExits) {
+      return new ResponseEntity<>("Email have existed!", HttpStatus.BAD_REQUEST);
     }
 
-    //register
-    public ResponseEntity<?> register(RegisterRequest registerRequest) {
-        boolean emailExits = userRepository.existsByEmail(registerRequest.getEmail());
-        if (emailExits) {
-            return new ResponseEntity<>("Email have existed!", HttpStatus.BAD_REQUEST);
-        }
-
-        Role userRole =roleRepository.findByName(RoleType.USER)
-                    .orElseThrow(
-                            () -> new RuntimeException("Error: Role is not found.")
-                    );
-
-        User user = User.builder()
-                .email(registerRequest.getEmail())
-                .fullName(registerRequest.getFullname())
-                .phoneNumber(registerRequest.getPhone())
-                .password(encoder.encode(registerRequest.getPassword()))
-                .birthday(registerRequest.getBirthday())
-                .address(registerRequest.getAddress())
-                .role(userRole)
-                .status(Status.ACTIVE)
-                .build();
-        userRepository.save(user);
-        return new ResponseEntity<>("Register your account success!", HttpStatus.OK);
-    }
-
-    //login
-    public ResponseEntity<?> login(LoginRequest loginRequest) throws Exception {
-        User user = getUserByEmail(loginRequest.getEmail());
-        boolean checkAccount = encoder.matches(loginRequest.getPassword(), user.getPassword());
-        if (!checkAccount) {
-            return new ResponseEntity<>("Wrong password", HttpStatus.BAD_REQUEST);
-        }
-
-
-        if (user.getStatus().equals(Status.NON_ACTIVE)) {
-            return new ResponseEntity<>("your account is not active", HttpStatus.BAD_REQUEST);
-        } else {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
+    Role userRole =roleRepository.findByName(RoleType.USER)
+            .orElseThrow(
+                    () -> new RuntimeException("Error: Role is not found.")
             );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
-            return ResponseEntity.ok(new LoginResponse(jwt));
-        }
+
+    User user = User.builder()
+            .email(registerRequest.getEmail())
+            .fullName(registerRequest.getFullname())
+            .phoneNumber(registerRequest.getPhone())
+            .password(encoder.encode(registerRequest.getPassword()))
+            .birthday(registerRequest.getBirthday())
+            .address(registerRequest.getAddress())
+            .role(userRole)
+            .status(Status.ACTIVE)
+            .build();
+    userRepository.save(user);
+    return new ResponseEntity<>("Register your account success!", HttpStatus.OK);
+  }
+
+  //login
+  public ResponseEntity<?> login(LoginRequest loginRequest) throws Exception {
+    User user = getUserByEmail(loginRequest.getEmail());
+    boolean checkAccount = encoder.matches(loginRequest.getPassword(), user.getPassword());
+    if (!checkAccount) {
+      return new ResponseEntity<>("Wrong password", HttpStatus.BAD_REQUEST);
     }
 
-    public UserResponse update(HttpServletRequest request, DTO dto){
-        UserDto userDTO = modelMapper.map(dto, UserDto.class);
-        User user = getUser();
-        user.setFullName(userDTO.getFullname());
-        user.setPhoneNumber(userDTO.getPhone());
-        user.setAddress(userDTO.getAddress());
-        user.setBirthday(userDTO.getBirthday());
 
-        UserResponse userResponse = modelMapper.map(userRepository.save(user), UserResponse.class);
-        return userResponse;
+    if (user.getStatus().equals(Status.NON_ACTIVE)) {
+      return new ResponseEntity<>("your account is not active", HttpStatus.BAD_REQUEST);
+    } else {
+      Authentication authentication = authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(
+                      loginRequest.getEmail(),
+                      loginRequest.getPassword()
+              )
+      );
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+      String jwt = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
+      return ResponseEntity.ok(new LoginResponse(jwt));
     }
+  }
 
-    @Override
-    public CustomPage<User> findAll(Pageable pageable) {
-        Page<User> userPage = userRepository.findAll(pageable);
-        return new CustomPage<>(userPage);
-    }
+  public UserResponse update( DTO dto){
+    UserDto userDTO = modelMapper.map(dto, UserDto.class);
+    User user = getUser();
+    user.setFullName(userDTO.getFullname());
+    user.setPhoneNumber(userDTO.getPhone());
+    user.setAddress(userDTO.getAddress());
+    user.setBirthday(userDTO.getBirthday());
 
-    @Override
-    public User findById(HttpServletRequest request, Long id) {
-        return getById(id);
-    }
+    UserResponse userResponse = modelMapper.map(userRepository.save(user), UserResponse.class);
+    return userResponse;
+  }
 
-    public UserResponse getUserLogin() {
-        User user = getUser();
-        return modelMapper.map(user, UserResponse.class);
-    }
+  @Override
+  public CustomPage<User> findAll(Pageable pageable) {
+    Page<User> userPage = userRepository.findAll(pageable);
+    return new CustomPage<>(userPage);
+  }
 
-    public UserResponse changeStatus(Long id) {
-        User user = getById(id);
-        if (user.getStatus().equals(Status.ACTIVE)) {
-            user.setStatus(Status.NON_ACTIVE);
-        } else {
-            user.setStatus(Status.ACTIVE);
-        }
-        return modelMapper.map(userRepository.save(user), UserResponse.class);
-    }
+  @Override
+  public User findById(HttpServletRequest request, Long id) {
+    return getById(id);
+  }
 
-    @Override
-    public User create(HttpServletRequest request, DTO dto) {
-        return null;
-    }
+  public UserResponse getUserLogin() {
+    User user = getUser();
+    return modelMapper.map(user, UserResponse.class);
+  }
 
-    @Override
-    public User update(HttpServletRequest request, Long id, DTO dto) {
-        return null;
+  public UserResponse changeStatus(Long id) {
+    User user = getById(id);
+    if (user.getStatus().equals(Status.ACTIVE)) {
+      user.setStatus(Status.NON_ACTIVE);
+    } else {
+      user.setStatus(Status.ACTIVE);
     }
+    return modelMapper.map(userRepository.save(user), UserResponse.class);
+  }
 
-    @Override
-    public boolean delete(HttpServletRequest request, Long id) {
-        return false;
-    }
+  @Override
+  public User create(HttpServletRequest request, DTO dto) {
+    return null;
+  }
 
-    @Override
-    public Page<User> findAllByFilter(FilterDto<User> dto, Pageable pageable) {
-        return null;
-    }
+  @Override
+  public User update(HttpServletRequest request, Long id, DTO dto) {
+    return null;
+  }
 
-    @Override
-    public List<User> findAllByFilter(HttpServletRequest request) {
-        return null;
-    }
+  @Override
+  public boolean delete(HttpServletRequest request, Long id) {
+    return false;
+  }
+
+  @Override
+  public Page<User> findAllByFilter(FilterDto<User> dto, Pageable pageable) {
+    return null;
+  }
+
+  @Override
+  public List<User> findAllByFilter(HttpServletRequest request) {
+    return null;
+  }
 
 }
