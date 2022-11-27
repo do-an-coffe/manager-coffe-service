@@ -1,20 +1,21 @@
 package com.ecommerce.domain.services.impl.author;
 
-import com.ecommerce.app.dtos.request.DTO;
-import com.ecommerce.app.dtos.request.FilterDto;
-import com.ecommerce.app.dtos.request.LoginRequest;
-import com.ecommerce.app.dtos.request.RegisterRequest;
-import com.ecommerce.app.dtos.request.impl.UserDto;
-import com.ecommerce.app.dtos.responses.CustomPage;
-import com.ecommerce.app.dtos.responses.LoginResponse;
-import com.ecommerce.app.dtos.responses.UserResponse;
+import com.ecommerce.app.dtos.DTO;
+import com.ecommerce.app.dtos.FilterDto;
+import com.ecommerce.app.dtos.LoginRequest;
+import com.ecommerce.app.dtos.RegisterRequest;
+import com.ecommerce.app.dtos.impl.UserDto;
+import com.ecommerce.app.responses.CustomPage;
+import com.ecommerce.app.responses.LoginResponse;
+import com.ecommerce.app.responses.UserResponse;
 import com.ecommerce.domain.configs.jwt.JwtTokenProvider;
 import com.ecommerce.domain.entities.CustomUserDetails;
 import com.ecommerce.domain.entities.author.Role;
 import com.ecommerce.domain.entities.author.User;
 import com.ecommerce.domain.entities.enums.RoleType;
 import com.ecommerce.domain.entities.enums.Status;
-import com.ecommerce.domain.services.BaseService;
+import com.ecommerce.domain.exceptions.ResourceNotFoundException;
+import com.ecommerce.domain.services.base.BaseService;
 import com.ecommerce.domain.services.impl.BaseAbtractService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ import java.util.List;
 
 @Service
 @Log4j2
-public class UserService extends BaseAbtractService implements BaseService<User, Long> {
+public class UserService extends BaseService {
 
   @Autowired
   private PasswordEncoder encoder;
@@ -47,7 +48,7 @@ public class UserService extends BaseAbtractService implements BaseService<User,
 
   //findById
   public UserDetails loadUserById(long id) {
-    User user = userRepository.findById(id).orElse(null);
+    User user = userStorage.findByUserId(id);
     if (user == null) {
       throw new UsernameNotFoundException("not found");
     }
@@ -56,15 +57,15 @@ public class UserService extends BaseAbtractService implements BaseService<User,
 
   //register
   public ResponseEntity<?> register(RegisterRequest registerRequest) {
-    boolean emailExits = userRepository.existsByEmail(registerRequest.getEmail());
+    boolean emailExits = userStorage.existsByEmail(registerRequest.getEmail());
     if (emailExits) {
       return new ResponseEntity<>("Email have existed!", HttpStatus.BAD_REQUEST);
     }
 
-    Role userRole =roleRepository.findByName(RoleType.USER)
-            .orElseThrow(
-                    () -> new RuntimeException("Error: Role is not found.")
-            );
+    Role userRole =roleStorage.findByName(RoleType.USER);
+    if(userRole == null){
+      throw new RuntimeException("Error: Role is not found.");
+    }
 
     User user = User.builder()
             .email(registerRequest.getEmail())
@@ -76,13 +77,14 @@ public class UserService extends BaseAbtractService implements BaseService<User,
             .role(userRole)
             .status(Status.ACTIVE)
             .build();
-    userRepository.save(user);
+    userStorage.save(user);
     return new ResponseEntity<>("Register your account success!", HttpStatus.OK);
   }
 
   //login
   public ResponseEntity<?> login(LoginRequest loginRequest) throws Exception {
-    User user = getUserByEmail(loginRequest.getEmail());
+//    User user = getUserByEmail(loginRequest.getEmail());
+    User user = null;
     boolean checkAccount = encoder.matches(loginRequest.getPassword(), user.getPassword());
     if (!checkAccount) {
       return new ResponseEntity<>("Wrong password", HttpStatus.BAD_REQUEST);
@@ -105,66 +107,49 @@ public class UserService extends BaseAbtractService implements BaseService<User,
   }
 
   public UserResponse update( DTO dto){
-    UserDto userDTO = modelMapper.map(dto, UserDto.class);
-    User user = getUser();
-    user.setFullName(userDTO.getFullname());
-    user.setPhoneNumber(userDTO.getPhone());
-    user.setAddress(userDTO.getAddress());
-    user.setBirthday(userDTO.getBirthday());
-
-    UserResponse userResponse = modelMapper.map(userRepository.save(user), UserResponse.class);
-    return userResponse;
+//    UserDto userDTO = modelMapper.map(dto, UserDto.class);
+    User user = null;
+//    user.setFullName(userDTO.getFullname());
+//    user.setPhoneNumber(userDTO.getPhone());
+//    user.setAddress(userDTO.getAddress());
+//    user.setBirthday(userDTO.getBirthday());
+    userStorage.save(user);
+    return modelMapper.toUserResponse(user);
   }
 
-  @Override
-  public CustomPage<User> findAll(Pageable pageable) {
-    Page<User> userPage = userRepository.findAll(pageable);
-    return new CustomPage<>(userPage);
-  }
+//  @Override
+//  public CustomPage<User> findAll(Pageable pageable) {
+//    Page<User> userPage = userRepository.findAll(pageable);
+//    return new CustomPage<>(userPage);
+//  }
 
-  @Override
-  public User findById(HttpServletRequest request, Long id) {
-    return getById(id);
+  public UserResponse detail(Long id){
+    User user = validateUser(id);
+    return modelMapper.toUserResponse(user);
   }
 
   public UserResponse getUserLogin() {
-    User user = getUser();
-    return modelMapper.map(user, UserResponse.class);
+    User user = null;
+    return modelMapper.toUserResponse(user);
   }
 
   public UserResponse changeStatus(Long id) {
-    User user = getById(id);
+    User user = validateUser(id);
     if (user.getStatus().equals(Status.ACTIVE)) {
       user.setStatus(Status.NON_ACTIVE);
     } else {
       user.setStatus(Status.ACTIVE);
     }
-    return modelMapper.map(userRepository.save(user), UserResponse.class);
+    userStorage.save(user);
+
+    return modelMapper.toUserResponse(user);
   }
 
-  @Override
-  public User create(HttpServletRequest request, DTO dto) {
-    return null;
+  public User validateUser(Long id){
+    User user = userStorage.findByUserId(id);
+    if(user == null){
+      throw new ResourceNotFoundException("Not found user with id: " + id);
+    }
+    return user;
   }
-
-  @Override
-  public User update(HttpServletRequest request, Long id, DTO dto) {
-    return null;
-  }
-
-  @Override
-  public boolean delete(HttpServletRequest request, Long id) {
-    return false;
-  }
-
-  @Override
-  public Page<User> findAllByFilter(FilterDto<User> dto, Pageable pageable) {
-    return null;
-  }
-
-  @Override
-  public List<User> findAllByFilter(HttpServletRequest request) {
-    return null;
-  }
-
 }

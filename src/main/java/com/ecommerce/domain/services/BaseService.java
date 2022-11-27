@@ -1,9 +1,9 @@
 package com.ecommerce.domain.services;
 
 
-import com.ecommerce.app.dtos.request.DTO;
-import com.ecommerce.app.dtos.request.FilterDto;
-import com.ecommerce.app.dtos.responses.CustomPage;
+import com.ecommerce.app.dtos.DTO;
+import com.ecommerce.app.dtos.FilterDto;
+import com.ecommerce.app.responses.CustomPage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

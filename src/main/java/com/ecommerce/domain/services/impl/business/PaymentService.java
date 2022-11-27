@@ -1,6 +1,6 @@
 package com.ecommerce.domain.services.impl.business;
 
-import com.ecommerce.app.dtos.request.impl.PaymentDto;
+import com.ecommerce.app.dtos.impl.PaymentDto;
 import com.ecommerce.domain.services.impl.BaseAbtractService;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;

@@ -1,7 +1,7 @@
 package com.ecommerce.app.controllers.business;
 
-import com.ecommerce.app.dtos.request.impl.ProductFilterDto;
-import com.ecommerce.app.dtos.responses.ProductResponse;
+import com.ecommerce.app.dtos.impl.ProductFilterDto;
+import com.ecommerce.app.responses.ProductResponse;
 import com.ecommerce.domain.entities.business.Product;
 import com.ecommerce.domain.services.impl.business.ProductService;
 import com.ecommerce.app.controllers.BaseController;

@@ -1,8 +1,8 @@
 package com.ecommerce.app.controllers.business;
 
-import com.ecommerce.app.dtos.request.impl.ProductRatingFilterDto;
-import com.ecommerce.app.dtos.responses.ProductRatingResponse;
-import com.ecommerce.app.dtos.responses.ProductRatingResponseList;
+import com.ecommerce.app.dtos.impl.ProductRatingFilterDto;
+import com.ecommerce.app.responses.ProductRatingResponse;
+import com.ecommerce.app.responses.ProductRatingResponseList;
 import com.ecommerce.domain.entities.business.ProductRating;
 import com.ecommerce.domain.services.impl.business.ProductRatingService;
 import com.ecommerce.app.controllers.BaseController;

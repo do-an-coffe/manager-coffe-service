@@ -1,8 +1,8 @@
 package com.ecommerce.app.controllers;
 
-import com.ecommerce.app.dtos.request.DTO;
-import com.ecommerce.app.dtos.request.FilterDto;
-import com.ecommerce.app.dtos.responses.CustomPage;
+import com.ecommerce.app.dtos.DTO;
+import com.ecommerce.app.dtos.FilterDto;
+import com.ecommerce.app.responses.CustomPage;
 import com.ecommerce.domain.services.BaseService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

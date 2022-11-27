@@ -1,12 +1,12 @@
 package com.ecommerce.app.controllers.business;
 
-import com.ecommerce.app.dtos.request.impl.TransactionFilterDto;
-import com.ecommerce.app.dtos.request.impl.TransactionStatusDto;
+import com.ecommerce.app.dtos.impl.TransactionFilterDto;
+import com.ecommerce.app.dtos.impl.TransactionStatusDto;
 import com.ecommerce.domain.entities.business.Transaction;
 import com.ecommerce.domain.services.impl.business.TransactionService;
 import com.ecommerce.app.controllers.BaseController;
-import com.ecommerce.app.dtos.responses.DataResponse;
-import com.ecommerce.app.dtos.responses.TransactionResponse;
+import com.ecommerce.app.responses.DataResponse;
+import com.ecommerce.app.responses.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

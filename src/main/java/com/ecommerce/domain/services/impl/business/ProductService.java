@@ -1,10 +1,10 @@
 package com.ecommerce.domain.services.impl.business;
 
-import com.ecommerce.app.dtos.request.DTO;
-import com.ecommerce.app.dtos.request.FilterDto;
-import com.ecommerce.app.dtos.request.impl.ProductDto;
-import com.ecommerce.app.dtos.request.impl.ProductFilterDto;
-import com.ecommerce.app.dtos.responses.CustomPage;
+import com.ecommerce.app.dtos.DTO;
+import com.ecommerce.app.dtos.FilterDto;
+import com.ecommerce.app.dtos.impl.ProductDto;
+import com.ecommerce.app.dtos.impl.ProductFilterDto;
+import com.ecommerce.app.responses.CustomPage;
 import com.ecommerce.domain.entities.business.Category;
 import com.ecommerce.domain.entities.business.Product;
 import com.ecommerce.domain.services.BaseService;

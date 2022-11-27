@@ -1,16 +1,15 @@
 package com.ecommerce.app.controllers.author;
 
-import com.ecommerce.app.dtos.responses.UserResponse;
+import com.ecommerce.app.responses.UserResponse;
 import com.ecommerce.domain.services.impl.author.RoleService;
 import com.ecommerce.domain.services.impl.author.UserService;
-import com.ecommerce.app.dtos.request.DTO;
-import com.ecommerce.app.dtos.request.LoginRequest;
-import com.ecommerce.app.dtos.request.RegisterRequest;
+import com.ecommerce.app.dtos.DTO;
+import com.ecommerce.app.dtos.LoginRequest;
+import com.ecommerce.app.dtos.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -41,6 +40,12 @@ public class UserController {
   @GetMapping("/info")
   public UserResponse getUser(){
     return userService.getUserLogin();
+  }
+
+  @GetMapping("/{id}")
+  public UserResponse detail(@PathVariable Long id){
+
+    return userService.detail(id);
   }
 
   @PatchMapping

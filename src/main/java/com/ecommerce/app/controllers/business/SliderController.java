@@ -1,7 +1,7 @@
 package com.ecommerce.app.controllers.business;
 
-import com.ecommerce.app.dtos.request.impl.SliderFilterDto;
-import com.ecommerce.app.dtos.responses.SliderResponse;
+import com.ecommerce.app.dtos.impl.SliderFilterDto;
+import com.ecommerce.app.responses.SliderResponse;
 import com.ecommerce.domain.entities.business.Slider;
 import com.ecommerce.domain.services.impl.business.SliderService;
 import com.ecommerce.app.controllers.BaseController;

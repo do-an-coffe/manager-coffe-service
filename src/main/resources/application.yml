@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 500000
+      maximum-pool-size: 5
+  jpa:
+    database: mysql
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        generate_statistics: ${HIBERNATE_STATISTICS:false}
+        jdbc.batch_size: ${DATASOURCE_BATCH_SIZE:100}
+        order_inserts: true
+        order_updates: true
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+
+file:
+  upload-dir: upload/image
+
+paypal:
+  client:
+    id: AUTjtspf3F33KMacC3KA9ZCAG4T15hr4NnTMVqjfi1ETjlPjLZZlYrqFdZZOg85eYCmarqAEXL-Y3TR4
+    secret: EOZdI98_t0WqHAiBpBfdyVc3Vm55Y04n8K0u2KzzxYwO5iJqszvDzXRI0zctpwgH0i6Ilrmm9U4LSyir

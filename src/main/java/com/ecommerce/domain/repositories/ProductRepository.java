@@ -1,7 +1,7 @@
 package com.ecommerce.domain.repositories;
 
 import com.ecommerce.domain.entities.business.Product;
-import com.ecommerce.app.dtos.request.FilterDto;
+import com.ecommerce.app.dtos.FilterDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
