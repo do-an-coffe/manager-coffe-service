@@ -1,16 +1,12 @@
-package com.ecommerce.app.dtos.impl;
+package com.ecommerce.app.dtos;
 
-import com.ecommerce.app.dtos.DTO;
-import com.ecommerce.domain.entities.business.Category;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 
 @Data
-@JsonTypeName("category")
-public class CategoryDto implements DTO<Category> {
+public class CategoryDto{
 
     private Long id;
 

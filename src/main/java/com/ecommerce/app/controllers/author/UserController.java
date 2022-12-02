@@ -4,8 +4,8 @@ import com.ecommerce.app.responses.UserResponse;
 import com.ecommerce.domain.services.impl.author.RoleService;
 import com.ecommerce.domain.services.impl.author.UserService;
 import com.ecommerce.app.dtos.DTO;
-import com.ecommerce.app.dtos.LoginRequest;
-import com.ecommerce.app.dtos.RegisterRequest;
+import com.ecommerce.app.dtos.LoginDto;
+import com.ecommerce.app.dtos.RegisterDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +28,13 @@ public class UserController {
 
 
   @PostMapping("/register")
-  public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest){
-    return userService.register(registerRequest);
+  public ResponseEntity<?> register(@Valid @RequestBody RegisterDto registerDto){
+    return userService.register(registerDto);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws Exception {
-    return userService.login(loginRequest);
+  public ResponseEntity<?> login(@RequestBody LoginDto loginDto) throws Exception {
+    return userService.login(loginDto);
   }
 
   @GetMapping("/info")

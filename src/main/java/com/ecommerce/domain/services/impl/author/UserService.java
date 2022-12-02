@@ -1,11 +1,8 @@
 package com.ecommerce.domain.services.impl.author;
 
 import com.ecommerce.app.dtos.DTO;
-import com.ecommerce.app.dtos.FilterDto;
-import com.ecommerce.app.dtos.LoginRequest;
-import com.ecommerce.app.dtos.RegisterRequest;
-import com.ecommerce.app.dtos.impl.UserDto;
-import com.ecommerce.app.responses.CustomPage;
+import com.ecommerce.app.dtos.LoginDto;
+import com.ecommerce.app.dtos.RegisterDto;
 import com.ecommerce.app.responses.LoginResponse;
 import com.ecommerce.app.responses.UserResponse;
 import com.ecommerce.domain.configs.jwt.JwtTokenProvider;
@@ -16,11 +13,8 @@ import com.ecommerce.domain.entities.enums.RoleType;
 import com.ecommerce.domain.entities.enums.Status;
 import com.ecommerce.domain.exceptions.ResourceNotFoundException;
 import com.ecommerce.domain.services.base.BaseService;
-import com.ecommerce.domain.services.impl.BaseAbtractService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,9 +25,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @Service
 @Log4j2
@@ -56,8 +47,8 @@ public class UserService extends BaseService {
   }
 
   //register
-  public ResponseEntity<?> register(RegisterRequest registerRequest) {
-    boolean emailExits = userStorage.existsByEmail(registerRequest.getEmail());
+  public ResponseEntity<?> register(RegisterDto registerDto) {
+    boolean emailExits = userStorage.existsByEmail(registerDto.getEmail());
     if (emailExits) {
       return new ResponseEntity<>("Email have existed!", HttpStatus.BAD_REQUEST);
     }
@@ -68,12 +59,12 @@ public class UserService extends BaseService {
     }
 
     User user = User.builder()
-            .email(registerRequest.getEmail())
-            .fullName(registerRequest.getFullname())
-            .phoneNumber(registerRequest.getPhone())
-            .password(encoder.encode(registerRequest.getPassword()))
-            .birthday(registerRequest.getBirthday())
-            .address(registerRequest.getAddress())
+            .email(registerDto.getEmail())
+            .fullName(registerDto.getFullname())
+            .phoneNumber(registerDto.getPhone())
+            .password(encoder.encode(registerDto.getPassword()))
+            .birthday(registerDto.getBirthday())
+            .address(registerDto.getAddress())
             .role(userRole)
             .status(Status.ACTIVE)
             .build();
@@ -82,10 +73,10 @@ public class UserService extends BaseService {
   }
 
   //login
-  public ResponseEntity<?> login(LoginRequest loginRequest) throws Exception {
+  public ResponseEntity<?> login(LoginDto loginDto) throws Exception {
 //    User user = getUserByEmail(loginRequest.getEmail());
     User user = null;
-    boolean checkAccount = encoder.matches(loginRequest.getPassword(), user.getPassword());
+    boolean checkAccount = encoder.matches(loginDto.getPassword(), user.getPassword());
     if (!checkAccount) {
       return new ResponseEntity<>("Wrong password", HttpStatus.BAD_REQUEST);
     }
@@ -96,8 +87,8 @@ public class UserService extends BaseService {
     } else {
       Authentication authentication = authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(
-                      loginRequest.getEmail(),
-                      loginRequest.getPassword()
+                      loginDto.getEmail(),
+                      loginDto.getPassword()
               )
       );
       SecurityContextHolder.getContext().setAuthentication(authentication);

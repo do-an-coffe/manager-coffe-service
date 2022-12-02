@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Data
-public class RegisterRequest {
+public class RegisterDto {
 
     @NotNull(message = "fullname not null")
     @JsonProperty("full_name")
