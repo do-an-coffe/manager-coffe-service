@@ -5,7 +5,6 @@ import com.ecommerce.app.responses.ProductRatingResponse;
 import com.ecommerce.app.responses.ProductRatingResponseList;
 import com.ecommerce.domain.entities.business.ProductRating;
 import com.ecommerce.domain.services.impl.business.ProductRatingService;
-import com.ecommerce.app.controllers.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

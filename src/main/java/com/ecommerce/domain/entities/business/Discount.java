@@ -18,25 +18,25 @@ import java.util.Date;
 @Table(name = "discount")
 public class Discount extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    @JsonIgnore
-    private Product product;
+  @ManyToOne
+  @JoinColumn(name = "product_id")
+  @JsonIgnore
+  private Product product;
 
-    @Column(name = "name")
-    private String name;
+  @Column(name = "name")
+  private String name;
 
-    @Column(name = "start_date")
-    private Date startDate;
+  @Column(name = "start_date")
+  private Date startDate;
 
-    @Column(name = "end_date")
-    private Date endDate;
+  @Column(name = "end_date")
+  private Date endDate;
 
-    @Column(name = "discount")
-    private Integer discount;
+  @Column(name = "discount")
+  private Integer discount;
 
 }

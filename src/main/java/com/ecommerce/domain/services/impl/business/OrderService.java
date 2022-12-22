@@ -1,11 +1,10 @@
 package com.ecommerce.domain.services.impl.business;
 
-import com.ecommerce.app.dtos.impl.OrderDto;
+import com.ecommerce.app.dtos.OrderDto;
 import com.ecommerce.app.dtos.DTO;
-import com.ecommerce.app.dtos.FilterDto;
 import com.ecommerce.app.responses.CustomPage;
 import com.ecommerce.domain.entities.business.Order;
-import com.ecommerce.domain.services.BaseService;
+import com.ecommerce.domain.services.base.BaseService;
 import com.ecommerce.domain.services.impl.BaseAbtractService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -17,60 +16,51 @@ import java.util.List;
 
 @Service
 @Log4j2
-public class OrderService extends BaseAbtractService implements BaseService<Order, Long> {
-    @Override
-    public CustomPage<Order> findAll(Pageable pageable) {
-        return null;
-    }
+public class OrderService extends BaseService {
+  public CustomPage<Order> findAll(Pageable pageable) {
+    return null;
+  }
 
-    @Override
-    public Order findById(HttpServletRequest request, Long id) {
-        return getOrderById(id);
-    }
+  public Order findById(Long id) {
+    Order order = orderStorage.
+    return getOrderById(id);
+  }
 
-    @Override
-    public Order create(HttpServletRequest request, DTO dto) {
-        OrderDto orderDto = modelMapper.map(dto, OrderDto.class);
-        Order order = Order.builder()
-                .quantity(orderDto.getQuantity())
-//                .amount(orderDto.getAmount())
-//                .data(orderDto.getData())
-//                .status(orderDto.getStatus())
-//                .product(getProductById(orderDto.getProductID()))
-//                .transaction(getTransactionById(orderDto.getTransactionId()))
-                .build();
+  public Order create(HttpServletRequest request, DTO dto) {
+    OrderDto orderDto = modelMapper.map(dto, OrderDto.class);
+    Order order = Order.builder()
+            .quantity(orderDto.getQuantity())
+            .build();
 
-        return orderRepository.save(order);
-    }
+    return orderRepository.save(order);
+  }
 
-    @Override
-    public Order update(HttpServletRequest request, Long id, DTO dto) {
-        Order order = findById(request, id);
-        OrderDto orderDto = modelMapper.map(dto, OrderDto.class);
-        order.setQuantity(orderDto.getQuantity());
+  public Order update(HttpServletRequest request, Long id, DTO dto) {
+    Order order = findById(request, id);
+    OrderDto orderDto = modelMapper.map(dto, OrderDto.class);
+    order.setQuantity(orderDto.getQuantity());
 //        order.setAmount(orderDto.getAmount());
 //        order.setData(orderDto.getData());
 //        order.setStatus(orderDto.getStatus());
-        order.setProduct(getProductById(orderDto.getProductID()));
-     //   order.setTransaction(getTransactionById(orderDto.getTransactionId()));
+    order.setProduct(getProductById(orderDto.getProductID()));
+    //   order.setTransaction(getTransactionById(orderDto.getTransactionId()));
 
-        return orderRepository.save(order);
-    }
+    return orderRepository.save(order);
+  }
 
-    @Override
-    public boolean delete(HttpServletRequest request, Long id) {
-        Order order = findById(request, id);
-        orderRepository.delete(order);
-        return true;
-    }
+  public boolean delete(HttpServletRequest request, Long id) {
+    Order order = findById(request, id);
+    orderRepository.delete(order);
+    return true;
+  }
 
-    @Override
-    public Page<Order> findAllByFilter(FilterDto<Order> dto, Pageable pageable) {
-        return null;
-    }
 
-    @Override
-    public List<Order> findAllByFilter(HttpServletRequest request) {
-        return null;
-    }
+  public Page<Order> findAllByFilter(FilterDto<Order> dto, Pageable pageable) {
+    return null;
+  }
+
+
+  public List<Order> findAllByFilter(HttpServletRequest request) {
+    return null;
+  }
 }

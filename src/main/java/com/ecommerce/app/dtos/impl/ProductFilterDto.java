@@ -1,11 +1,9 @@
 package com.ecommerce.app.dtos.impl;
 
-import com.ecommerce.app.dtos.FilterDto;
-import com.ecommerce.domain.entities.business.Product;
 import lombok.Data;
 
 @Data
-public class ProductFilterDto implements FilterDto<Product> {
+public class ProductFilterDto {
 
     private Long categoryId;
 

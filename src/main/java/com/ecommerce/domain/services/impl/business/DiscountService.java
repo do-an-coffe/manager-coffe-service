@@ -1,12 +1,14 @@
 package com.ecommerce.domain.services.impl.business;
 
 import com.ecommerce.app.dtos.DTO;
-import com.ecommerce.app.dtos.FilterDto;
-import com.ecommerce.app.dtos.impl.DiscountDto;
+import com.ecommerce.app.dtos.DiscountDto;
+import com.ecommerce.app.responses.CategoryResponse;
 import com.ecommerce.app.responses.CustomPage;
+import com.ecommerce.app.responses.DiscountResponse;
 import com.ecommerce.domain.entities.business.Discount;
 import com.ecommerce.domain.entities.business.Product;
-import com.ecommerce.domain.services.BaseService;
+import com.ecommerce.domain.exceptions.ResourceNotFoundException;
+import com.ecommerce.domain.services.base.BaseService;
 import com.ecommerce.domain.services.impl.BaseAbtractService;
 import com.ecommerce.domain.utils.exception.CustomErrorMessage;
 import com.ecommerce.domain.utils.exception.CustomException;
@@ -21,73 +23,82 @@ import java.util.List;
 
 @Service
 @Log4j2
-public class DiscountService extends BaseAbtractService implements BaseService<Discount, Long> {
-    @Override
-    public CustomPage<Discount> findAll(Pageable pageable) {
-        Page<Discount> discountPage = discountRepository.findAll(pageable);
-        return new CustomPage<>(discountPage);
+public class DiscountService extends BaseService {
+  public Page<DiscountResponse> getAll(Pageable pageable) {
+    Page<Discount> discountPage = discountStorage.findAll(pageable);
+    return mapperUtil.mapEntityPageIntoDtoPage(discountPage, DiscountResponse.class);
+  }
+
+
+  public Discount findById(Long id) {
+    Discount discount = discountStorage.findDiscountById(id);
+    //todo: cache
+    return discount;
+  }
+
+  public DiscountResponse detail(Long id){
+    Discount discount = discountStorage.findDiscountById(id);
+    if(discount == null){
+      throw new ResourceNotFoundException("Not found discount with id: " + id);
+    }
+    return modelMapper.toDiscountResponse(discount);
+  }
+  public Discount create(DiscountDto dto) {
+
+    Product product = productStorage.findProductsById(dto.getProductId());
+    if(product == null){
+      throw new ResourceNotFoundException("Not found product id: " + dto.getProductId());
+    }
+    List<Discount> discounts = product.getDiscounts();
+
+    if (dto.getStartDate().getTime() > dto.getEndDate().getTime()){
+      throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.TIME_INVALID);
     }
 
-    @Override
-    public Discount findById(HttpServletRequest request, Long id) {
-        return getDiscountById(id);
+    if (discounts.parallelStream().anyMatch(item -> (dto.getStartDate().getTime() < item.getEndDate().getTime() && dto.getEndDate().getTime() >= item.getStartDate().getTime())))
+    {
+      throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.DUPLICATE_TIME_RECORD);
     }
 
-    @Override
-    public Discount create(HttpServletRequest request, DTO dto) {
-        DiscountDto discountDto = modelMapper.map(dto, DiscountDto.class);
+    Discount discount = Discount.builder()
+            .product(product)
+            .startDate(dto.getStartDate())
+            .endDate(dto.getEndDate())
+            .discount(dto.getDiscount())
+            .name(dto.getName())
+            .build();
 
-        Product product = getProductById(discountDto.getProductId());
-        List<Discount> discounts = product.getDiscounts();
+    return discountStorage.save(discount);
+  }
 
-        if (discountDto.getStartDate().getTime() > discountDto.getEndDate().getTime()){
-            throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.TIME_INVALID);
-        }
-
-        if (discounts.parallelStream().anyMatch(item -> (discountDto.getStartDate().getTime() < item.getEndDate().getTime() && discountDto.getEndDate().getTime() >= item.getStartDate().getTime())))
-        {
-            throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.DUPLICATE_TIME_RECORD);
-        }
-
-        Discount discount = Discount.builder()
-                .product(getProductById(discountDto.getProductId()))
-                .startDate(discountDto.getStartDate())
-                .endDate(discountDto.getEndDate())
-                .discount(discountDto.getDiscount())
-                .name(discountDto.getName())
-                .build();
-
-        return discountRepository.save(discount);
+  public Discount update(Long id, DiscountDto dto) {
+    Discount discount = discountStorage.findDiscountById(id);
+    if(discount == null){
+      throw new ResourceNotFoundException("Not found discount with id: " + id);
     }
 
-    @Override
-    public Discount update(HttpServletRequest request, Long id, DTO dto) {
-        Discount discount = findById(request,id);
-        DiscountDto discountDto = modelMapper.map(dto, DiscountDto.class);
-        discount.setProduct(getProductById(discountDto.getProductId()));
-        discount.setStartDate(discountDto.getStartDate());
-        discount.setEndDate(discountDto.getEndDate());
-        discount.setDiscount(discountDto.getDiscount());
-        discount.setName(discountDto.getName());
-
-        return discountRepository.save(discount);
+    Product product = productStorage.findProductsById(dto.getProductId());
+    if(product == null){
+      throw new ResourceNotFoundException("Not found product id: " + dto.getProductId());
     }
 
-    @Override
-    public boolean delete(HttpServletRequest request, Long id) {
-        Discount discount = findById(request, id);
+    discount.setProduct(product);
+    discount.setStartDate(dto.getStartDate());
+    discount.setEndDate(dto.getEndDate());
+    discount.setDiscount(dto.getDiscount());
+    discount.setName(dto.getName());
 
-        discountRepository.delete(discount);
-        return true;
-    }
+    return discountStorage.save(discount);
+  }
 
-    @Override
-    public Page<Discount> findAllByFilter(FilterDto<Discount> dto, Pageable pageable) {
-        return discountRepository.findAllByFilter(dto, pageable);
+  public boolean delete(Long id) {
+    Discount discount = discountStorage.findDiscountById(id);
+    if(discount == null){
+      throw new ResourceNotFoundException("Not found discount with id: " + id);
     }
+    discountStorage.delete(discount);
+    return true;
+  }
 
-    @Override
-    public List<Discount> findAllByFilter(HttpServletRequest request) {
-        return null;
-    }
+
 }

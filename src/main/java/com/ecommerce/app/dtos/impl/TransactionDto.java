@@ -1,6 +1,7 @@
 package com.ecommerce.app.dtos.impl;
 
 import com.ecommerce.app.dtos.DTO;
+import com.ecommerce.app.dtos.OrderDto;
 import com.ecommerce.domain.entities.business.Transaction;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

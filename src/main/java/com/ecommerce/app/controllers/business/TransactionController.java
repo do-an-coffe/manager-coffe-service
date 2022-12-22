@@ -4,7 +4,6 @@ import com.ecommerce.app.dtos.impl.TransactionFilterDto;
 import com.ecommerce.app.dtos.impl.TransactionStatusDto;
 import com.ecommerce.domain.entities.business.Transaction;
 import com.ecommerce.domain.services.impl.business.TransactionService;
-import com.ecommerce.app.controllers.BaseController;
 import com.ecommerce.app.responses.DataResponse;
 import com.ecommerce.app.responses.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;

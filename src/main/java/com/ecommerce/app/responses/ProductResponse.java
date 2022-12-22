@@ -11,23 +11,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse {
-    private Long id;
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String detail;
+  private String detail;
 
-    private Double price;
+  private Double price;
 
-    private String image;
+  private String image;
 
-    private CategoryResponse category;
+  private CategoryResponse category;
 
-    private List<Discount> discounts;
+  private List<Discount> discounts;
 
-    private String imageList;
+  private String imageList;
 
-    private Integer quantity;
+  private Integer quantity;
 
-    private String description;
+  private String description;
 }

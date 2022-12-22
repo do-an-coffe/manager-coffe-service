@@ -1,32 +1,21 @@
 package com.ecommerce.domain.services.impl.business;
 
-import com.ecommerce.app.dtos.DTO;
-import com.ecommerce.app.dtos.FilterDto;
 import com.ecommerce.app.dtos.CategoryDto;
 import com.ecommerce.app.responses.CategoryResponse;
-import com.ecommerce.app.responses.CustomPage;
 import com.ecommerce.domain.entities.business.Category;
 import com.ecommerce.domain.exceptions.ResourceNotFoundException;
 import com.ecommerce.domain.services.base.BaseService;
-import com.ecommerce.domain.services.impl.BaseAbtractService;
 import com.ecommerce.domain.utils.exception.CustomErrorMessage;
 import com.ecommerce.domain.utils.exception.CustomException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.criteria.Predicate;
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Log4j2
 public class CategoryService extends BaseService {
-
 
   public Page<CategoryResponse> getAll(Pageable pageable){
     Page<Category> categoryPage = categoryStorage.findAll(pageable);

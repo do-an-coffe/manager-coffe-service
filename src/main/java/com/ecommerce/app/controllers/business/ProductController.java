@@ -1,23 +1,50 @@
 package com.ecommerce.app.controllers.business;
 
-import com.ecommerce.app.dtos.impl.ProductFilterDto;
+import com.ecommerce.app.dtos.ProductDto;
 import com.ecommerce.app.responses.ProductResponse;
+import com.ecommerce.app.responses.base.PageResponse;
 import com.ecommerce.domain.entities.business.Product;
 import com.ecommerce.domain.services.impl.business.ProductService;
-import com.ecommerce.app.controllers.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/product")
-public class ProductController extends BaseController<Product, Long, ProductResponse, ProductFilterDto> {
+public class ProductController {
 
-	@Autowired
-  ProductService productService;
+	@Autowired private ProductService productService;
 
-    public ProductController() {
-        super(ProductResponse.class, ProductFilterDto.class);
-    }
+  @GetMapping("all")
+  public PageResponse<ProductResponse> getAll(Pageable pageable){
+    return PageResponse.createFrom(productService.getAll(pageable));
+  }
+
+  @GetMapping("filter")
+  public PageResponse<ProductResponse> filter(Pageable pageable){
+    return PageResponse.createFrom(productService.getAll(pageable));
+  }
+
+  @GetMapping("{id}")
+  public ProductResponse detail(@PathVariable Long id){
+    return productService.detail(id);
+  }
+
+  @PostMapping()
+  public Product create(@RequestBody @Valid ProductDto productDto){
+    return productService.create(productDto);
+  }
+
+  @PatchMapping("{id}")
+  public Product update(@PathVariable Long id, @RequestBody @Valid ProductDto productDto){
+    return productService.update(id, productDto);
+  }
+
+  @DeleteMapping("{id}")
+  public boolean delete(@PathVariable Long id){
+    return productService.delete(id);
+  }
 
 }
