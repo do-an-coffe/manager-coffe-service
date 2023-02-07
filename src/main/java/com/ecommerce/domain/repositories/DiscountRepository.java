@@ -7,13 +7,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
-  @Query("SELECT d FROM Discount d WHERE " +
-          "(:#{#req.productId} is null or d.product.id = :#{#req.productId})" +
-          "ORDER BY d.created_at DESC ")
-  Page<Discount> findAllByFilter(FilterDto<Discount> req, Pageable pageable);
+//  @Query("SELECT d FROM Discount d WHERE " +
+//          "(:#{#req.productId} is null or d.product.id = :#{#req.productId})" +
+//          "ORDER BY d.created_at DESC ")
+//  Page<Discount> findAllByFilter(FilterDto<Discount> req, Pageable pageable);
 
   Discount findDiscountById(Long id);
+
+  List<Discount> findDiscountsByIdIn(List<Long> ids);
 }

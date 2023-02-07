@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Log4j2
 public class DiscountStorage extends BaseStorage{
@@ -21,6 +23,11 @@ public class DiscountStorage extends BaseStorage{
   public Discount findDiscountById(Long id){
     return discountRepository.findDiscountById(id);
   }
+
+  public List<Discount> findDiscountsByIdIn(List<Long> ids){
+    return discountRepository.findDiscountsByIdIn(ids);
+  }
+
 
   public void delete(Discount discount){
     discountRepository.delete(discount);

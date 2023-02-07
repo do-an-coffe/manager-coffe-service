@@ -21,4 +21,6 @@ public interface ModelMapper {
 
   SliderResponse toSliderResponse(Slider slider);
   ProductRatingResponse toProductRatingResponse(ProductRating productRating);
+
+  TransactionResponse toTransactionResponse(Transaction transaction);
 }

@@ -5,6 +5,7 @@ import com.ecommerce.domain.entities.author.User;
 import com.ecommerce.domain.entities.business.Product;
 import com.ecommerce.domain.entities.business.ProductRating;
 import com.ecommerce.domain.entities.business.Slider;
+import com.ecommerce.domain.entities.business.Transaction;
 import com.ecommerce.domain.exceptions.ResourceNotFoundException;
 import com.ecommerce.domain.storage.*;
 import com.ecommerce.domain.utils.MapperUtil;
@@ -59,5 +60,14 @@ public class BaseService {
     }
     //todo: xu ly cache
     return productRating;
+  }
+
+  public Transaction findTransactionById(Long id) {
+    Transaction transaction = transactionStorage.findTransactionById(id);
+    if(transaction == null){
+      throw new ResourceNotFoundException("Not found transaction id: " + id);
+    }
+    //todo: xu ly cache
+    return transaction;
   }
 }

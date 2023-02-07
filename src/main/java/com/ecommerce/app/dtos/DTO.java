@@ -2,7 +2,6 @@ package com.ecommerce.app.dtos;
 
 
 import com.ecommerce.app.dtos.impl.*;
-import com.ecommerce.app.dtos.request.impl.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

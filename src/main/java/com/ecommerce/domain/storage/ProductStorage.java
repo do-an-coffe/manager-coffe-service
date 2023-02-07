@@ -6,12 +6,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Log4j2
 public class ProductStorage extends BaseStorage{
-  public Page<Product> findAllByFilter(FilterDto<Product> req, Pageable pageable){
-    return productRepository.findAllByFilter(req, pageable);
-  }
+//  public Page<Product> findAllByFilter(FilterDto<Product> req, Pageable pageable){
+//    return productRepository.findAllByFilter(req, pageable);
+//  }
 
   public boolean existsByName(String name){
     return productRepository.existsByName(name);
@@ -25,7 +27,15 @@ public class ProductStorage extends BaseStorage{
     return productRepository.findProductsById(id);
   }
 
+  public List<Product> findProductsByIdIn(List<Long> ids){
+    return productRepository.findProductsByIdIn(ids);
+  }
+
+
   public Product save(Product product){
     return productRepository.save(product);
+  }
+  public void saveAll(List<Product> products){
+    productRepository.saveAll(products);
   }
 }

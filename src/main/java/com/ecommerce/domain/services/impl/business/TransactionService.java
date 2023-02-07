@@ -4,6 +4,7 @@ import com.ecommerce.app.dtos.OrderDto;
 import com.ecommerce.app.dtos.DTO;
 import com.ecommerce.app.dtos.impl.TransactionDto;
 import com.ecommerce.app.dtos.impl.TransactionStatusDto;
+import com.ecommerce.app.responses.CategoryResponse;
 import com.ecommerce.app.responses.CustomPage;
 import com.ecommerce.app.responses.DataResponse;
 import com.ecommerce.app.responses.TransactionResponse;
@@ -15,6 +16,7 @@ import com.ecommerce.domain.entities.business.Transaction;
 import com.ecommerce.domain.entities.data.MonthRevenue;
 import com.ecommerce.domain.entities.enums.RoleType;
 import com.ecommerce.domain.entities.enums.TransactionStatus;
+import com.ecommerce.domain.services.base.BaseService;
 import com.ecommerce.domain.services.impl.BaseAbtractService;
 import com.ecommerce.domain.utils.Constant;
 import com.ecommerce.domain.utils.Helper;
@@ -33,161 +35,127 @@ import java.util.stream.Collectors;
 
 @Service
 @Log4j2
-public class TransactionService extends BaseAbtractService implements BaseService<Transaction, Long> {
+public class TransactionService extends BaseService {
 
-    @Autowired
-    PaymentService paymentService;
+  @Autowired private PaymentService paymentService;
 
-    @Override
-    public CustomPage<Transaction> findAll(Pageable pageable) {
-        User user = getUser();
-        Page<Transaction> transactionPage = null;
-        if (user.getRole().getName().equals(RoleType.ADMIN)) {
-            transactionPage = transactionRepository.findAll(pageable);
+
+  public Page<TransactionResponse> getAll(String email, Pageable pageable) {
+    User user = findUserByEmail(email);
+    Page<Transaction> transactionPage = null;
+    if (user.getRole().getName().equals(RoleType.ADMIN)) {
+      transactionPage = transactionStorage.findAll(pageable);
+    } else {
+      transactionPage = transactionStorage.findAllByUser(user.getId(), pageable);
+    }
+
+    return mapperUtil.mapEntityPageIntoDtoPage(transactionPage, TransactionResponse.class);
+  }
+
+  public Page<TransactionResponse> findAllByUser(String email, Pageable pageable) {
+    User user = findUserByEmail(email);
+    Page<Transaction> transactionPage = transactionStorage.findAllByUser(user.getId(), pageable);
+    return mapperUtil.mapEntityPageIntoDtoPage(transactionPage, TransactionResponse.class);
+  }
+
+  public Transaction create(String email, TransactionDto dto) {
+    User user = findUserByEmail(email);
+    List<Long> productIds = dto.getOrders().parallelStream().map(OrderDto::getProductID).collect(Collectors.toList());
+    List<Product> products = productStorage.findProductsByIdIn(productIds);
+    if (products.size() != productIds.size()) {
+      throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.INVALID_PRODUCT_ID);
+    }
+
+    List<Long> discountIds = dto.getOrders().
+            parallelStream().filter(ele -> ele.getDiscountId() != null).map(OrderDto::getDiscountId).collect(Collectors.toList());
+    List<Discount> discounts = discountIds.isEmpty() ? new ArrayList<>() : discountStorage.findDiscountsByIdIn(discountIds);
+
+    Map<Long, Product> mapProduct = new HashMap<>();
+    Map<Long, Discount> mapDiscount = new HashMap<>();
+    products.forEach(ele -> {
+      mapProduct.put(ele.getId(), ele);
+    });
+    discounts.forEach(ele -> {
+      mapDiscount.put(ele.getId(), ele);
+    });
+
+    Transaction transaction = new Transaction();
+    transaction.setPayment(dto.getPayment());
+    transaction.setUserEmail(dto.getEmail());
+    transaction.setUserPhone(dto.getPhone());
+    transaction.setAddress(dto.getAddress());
+    transaction.setPaymentInfo(dto.getPaymentInfo());
+    transaction.setUser(user);
+    List<Order> orders = new ArrayList<>();
+    dto.getOrders().forEach(ele -> {
+      Order order = new Order();
+      Product product = (mapProduct.get(ele.getProductID()));
+      if (ele.getQuantity() > product.getQuantity()) {
+        throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.INVENTORY_NOT_ENOUGH);
+      }
+      order.setProduct(product);
+      order.setQuantity(ele.getQuantity());
+      product.setQuantity(product.getQuantity() - ele.getQuantity());
+      double amount;
+      if (ele.getDiscountId() != null) {
+        Discount discount = mapDiscount.get(ele.getDiscountId());
+        if (discount.getProduct().getId().longValue() != ele.getProductID().longValue()) {
+          throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.PRODUCT_INVALID);
+        }
+        Long now = (new Date()).getTime();
+        if (discount.getStartDate().getTime() <= now && discount.getEndDate().getTime() >= now) {
+          amount = (double)product.getPrice() * ele.getQuantity() * (100 - discount.getDiscount()) / 100d;
+          order.setAmount(amount);
         } else {
-            transactionPage = transactionRepository.findAllByUser(user.getId(), pageable);
+          throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.DISCOUNT_EXPIRED_TIME);
         }
-        CustomPage<Transaction> transactionCustomPage = new CustomPage<>();
-        transactionCustomPage.setData(transactionPage.getContent());
-        transactionCustomPage.setMetadata(new CustomPage.Metadata(transactionPage));
+      } else {
+        amount = product.getPrice() * ele.getQuantity();
+      }
+      order.setAmount(amount);
+      orders.add(order);
+    });
+    transaction.setAmount(orders.parallelStream().map(Order::getAmount).reduce(0d, Double::sum));
+    double sumAmount = transaction.getAmount();
+    transaction.setAmount(Helper.roundTwoDecimal(sumAmount));
+    transaction.setOrderSelf(orders);
+    transaction.setPayment(dto.getPayment());
 
-        return transactionCustomPage;
+    transaction.setStatus(TransactionStatus.WAIT_FOR_APPROVE.toString());
+    productStorage.saveAll((List<Product>) mapProduct.values());
+    transaction = transactionStorage.save(transaction);
+    return transaction;
+  }
+  public TransactionResponse changeStatusTransaction(String email, Long id, TransactionStatusDto dto) {
+    User user = findUserByEmail(email);
+    Transaction transaction = findTransactionById(id);
+    if ((user.getRole().getName().equals(RoleType.USER) && Constant.mapStatusUser.get(transaction.getStatus()).equals(dto.getStatus())) ||
+            (user.getRole().getName().equals(RoleType.ADMIN) && Constant.mapStatusAdmin.get(transaction.getStatus()).equals(dto.getStatus()))) {
+      transaction.setStatus(dto.getStatus());
+
+    } else if (user.getRole().getName().equals(RoleType.ADMIN) && dto.getStatus().equals(TransactionStatus.CANCEL.toString()) &&
+            (transaction.getStatus().equals(TransactionStatus.WAIT_FOR_APPROVE.toString()) || transaction.getStatus().equals(TransactionStatus.APPROVED.toString()))) {
+      transaction.setStatus(TransactionStatus.CANCEL.toString());
+    } else {
+      throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.TRANSACTION_STATUS_INCORRECT);
     }
+    return modelMapper.toTransactionResponse(transactionStorage.save(transaction));
+  }
 
-    public List<Transaction> findAllByUser() {
-        User user = getUser();
-        List<Transaction> transactionPage = transactionRepository.findAllByUserId(user.getId());
-        return transactionPage;
+  public DataResponse getRevenueByYear(int year) {
+    List<MonthRevenue> listResponse = new ArrayList<>();
+    List<MonthRevenue> result = transactionStorage.getRevenueInYear(year);
+    Map<Integer, MonthRevenue> mapMonthRevenue = new HashMap<>();
+    result.forEach(item -> {
+      mapMonthRevenue.put(item.getMonth(), item);
+    });
+    for (int i = 1; i <= 12; i++) {
+      if (mapMonthRevenue.get(i) != null) {
+        listResponse.add(mapMonthRevenue.get(i));
+      } else {
+        listResponse.add(new MonthRevenue(i, 0d));
+      }
     }
-
-    @Override
-    public Transaction findById(HttpServletRequest request, Long id) {
-        return getTransactionById(id);
-    }
-
-    @Override
-    public Transaction create(HttpServletRequest request, DTO dto) {
-        User user = getUser();
-        TransactionDto transactionDto = modelMapper.map(dto, TransactionDto.class);
-        List<Long> productIds = transactionDto.getOrders().parallelStream().map(OrderDto::getProductID).collect(Collectors.toList());
-        List<Product> products = productRepository.findAllById(productIds);
-        if (products.size() != productIds.size()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.INVALID_PRODUCT_ID);
-        }
-
-        List<Long> discountIds = transactionDto.getOrders().
-                parallelStream().filter(ele -> ele.getDiscountId() != null).map(OrderDto::getDiscountId).collect(Collectors.toList());
-        List<Discount> discounts = discountIds.isEmpty() ? new ArrayList<>() : discountRepository.findAllById(discountIds);
-
-        Map<Long, Product> mapProduct = new HashMap<>();
-        Map<Long, Discount> mapDiscount = new HashMap<>();
-        products.forEach(ele -> {
-            mapProduct.put(ele.getId(), ele);
-        });
-        discounts.forEach(ele -> {
-            mapDiscount.put(ele.getId(), ele);
-        });
-
-        Transaction transaction = new Transaction();
-        transaction.setPayment(transactionDto.getPayment());
-        transaction.setUserEmail(transactionDto.getEmail());
-        transaction.setUserPhone(transactionDto.getPhone());
-        transaction.setAddress(transactionDto.getAddress());
-        transaction.setPaymentInfo(transactionDto.getPaymentInfo());
-        transaction.setUser(user);
-        List<Order> orders = new ArrayList<>();
-        transactionDto.getOrders().forEach(ele -> {
-            Order order = new Order();
-            Product product = (mapProduct.get(ele.getProductID()));
-            if (ele.getQuantity() > product.getQuantity()) {
-                throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.INVENTORY_NOT_ENOUGH);
-            }
-            order.setProduct(product);
-            order.setQuantity(ele.getQuantity());
-            product.setQuantity(product.getQuantity() - ele.getQuantity());
-            double amount;
-            if (ele.getDiscountId() != null) {
-                Discount discount = mapDiscount.get(ele.getDiscountId());
-                if (discount.getProduct().getId().longValue() != ele.getProductID().longValue()) {
-                    throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.PRODUCT_INVALID);
-                }
-                Long now = (new Date()).getTime();
-                if (discount.getStartDate().getTime() <= now && discount.getEndDate().getTime() >= now) {
-                    amount = (double)product.getPrice() * ele.getQuantity() * (100 - discount.getDiscount()) / 100d;
-                    order.setAmount(amount);
-                } else {
-                    throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.DISCOUNT_EXPIRED_TIME);
-                }
-            } else {
-                amount = product.getPrice() * ele.getQuantity();
-            }
-            order.setAmount(amount);
-            orders.add(order);
-        });
-        transaction.setAmount(orders.parallelStream().map(Order::getAmount).reduce(0d, Double::sum));
-        double sumAmount = transaction.getAmount();
-        transaction.setAmount(Helper.roundTwoDecimal(sumAmount));
-        transaction.setOrderSelf(orders);
-        transaction.setPayment(transactionDto.getPayment());
-
-        transaction.setStatus(TransactionStatus.WAIT_FOR_APPROVE.toString());
-        productRepository.saveAll(mapProduct.values());
-        transaction = transactionRepository.save(transaction);
-        return transaction;
-    }
-
-    @Override
-    public Transaction update(HttpServletRequest request, Long id, DTO dto) {
-        return null;
-    }
-
-    @Override
-    public boolean delete(HttpServletRequest request, Long id) {
-        return false;
-    }
-
-    @Override
-    public Page<Transaction> findAllByFilter(FilterDto<Transaction> dto, Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public List<Transaction> findAllByFilter(HttpServletRequest request) {
-        return null;
-    }
-
-    public TransactionResponse changeStatusTransaction(Long id, DTO dto) {
-        TransactionStatusDto statusDto = modelMapper.map(dto, TransactionStatusDto.class);
-        User user = getUser();
-        Transaction transaction = getTransactionById(id);
-        if ((user.getRole().getName().equals(RoleType.USER) && Constant.mapStatusUser.get(transaction.getStatus()).equals(statusDto.getStatus())) ||
-                (user.getRole().getName().equals(RoleType.ADMIN) && Constant.mapStatusAdmin.get(transaction.getStatus()).equals(statusDto.getStatus()))) {
-            transaction.setStatus(statusDto.getStatus());
-
-        } else if (user.getRole().getName().equals(RoleType.ADMIN) && statusDto.getStatus().equals(TransactionStatus.CANCEL.toString()) &&
-                (transaction.getStatus().equals(TransactionStatus.WAIT_FOR_APPROVE.toString()) || transaction.getStatus().equals(TransactionStatus.APPROVED.toString()))) {
-            transaction.setStatus(TransactionStatus.CANCEL.toString());
-        } else {
-            throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.TRANSACTION_STATUS_INCORRECT);
-        }
-        transaction = transactionRepository.save(transaction);
-        return modelMapper.map(transaction, TransactionResponse.class);
-    }
-
-    public DataResponse getRevenueByYear(int year) {
-        List<MonthRevenue> listResponse = new ArrayList<>();
-        List<MonthRevenue> result = transactionRepository.getRevenueInYear(year);
-        Map<Integer, MonthRevenue> mapMonthRevenue = new HashMap<>();
-        result.forEach(item -> {
-            mapMonthRevenue.put(item.getMonth(), item);
-        });
-        for (int i = 1; i <= 12; i++) {
-            if (mapMonthRevenue.get(i) != null) {
-                listResponse.add(mapMonthRevenue.get(i));
-            } else {
-                listResponse.add(new MonthRevenue(i, 0d));
-            }
-        }
-        return new DataResponse(listResponse);
-    }
+    return new DataResponse(listResponse);
+  }
 }

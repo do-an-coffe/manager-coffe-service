@@ -13,15 +13,17 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    @Query("SELECT tr FROM Transaction tr WHERE tr.user.id = ?1")
-    Page<Transaction> findAllByUser(@Param("userId") Long userId, Pageable pageable);
+  @Query("SELECT tr FROM Transaction tr WHERE tr.user.id = ?1")
+  Page<Transaction> findAllByUser(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT tr FROM Transaction tr WHERE tr.user.id = ?1")
-    List<Transaction> findAllByUserId(@Param("userId") Long userId);
+  @Query("SELECT tr FROM Transaction tr WHERE tr.user.id = ?1")
+  List<Transaction> findAllByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT tr FROM Transaction tr WHERE :roleType is NULL or tr.user.role.name = :roleType")
-    Page<Transaction> findAllByUserRole(@Param("roleType") String roleType, Pageable pageable);
+  @Query("SELECT tr FROM Transaction tr WHERE :roleType is NULL or tr.user.role.name = :roleType")
+  Page<Transaction> findAllByUserRole(@Param("roleType") String roleType, Pageable pageable);
 
-    @Query("SELECT new com.ecommerce.domain.entities.data.MonthRevenue(month(tr.updated_at), sum(tr.amount)) FROM Transaction tr WHERE year(tr.updated_at) = ?1 group by month(tr.updated_at)")
-    List<MonthRevenue> getRevenueInYear(int year);
+  @Query("SELECT new com.ecommerce.domain.entities.data.MonthRevenue(month(tr.updated_at), sum(tr.amount)) FROM Transaction tr WHERE year(tr.updated_at) = ?1 group by month(tr.updated_at)")
+  List<MonthRevenue> getRevenueInYear(int year);
+
+  Transaction findTransactionById(Long id);
 }
