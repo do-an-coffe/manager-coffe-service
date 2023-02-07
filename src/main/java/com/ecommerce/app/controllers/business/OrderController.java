@@ -37,13 +37,13 @@ public class OrderController{
   }
 
   @PostMapping()
-  public Discount create(@RequestBody @Valid OrderDto discountDto){
-    return orderService.create(discountDto);
+  public Order create(@RequestBody @Valid OrderDto orderDto){
+    return orderService.create(orderDto);
   }
 
   @PatchMapping("{id}")
-  public Discount update(@PathVariable Long id, @RequestBody @Valid OrderDto discountDto){
-    return orderService.update(id, discountDto);
+  public Order update(@PathVariable Long id, @RequestBody @Valid OrderDto orderDto){
+    return orderService.update(id, orderDto);
   }
 
   @DeleteMapping("{id}")

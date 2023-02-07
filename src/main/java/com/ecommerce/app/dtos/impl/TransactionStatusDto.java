@@ -19,10 +19,8 @@ public class TransactionStatusDto implements DTO<Transaction> {
     protected boolean isValidStatus() {
         return status.equals(TransactionStatus.WAIT_FOR_APPROVE.toString())
                 || status.equals(TransactionStatus.APPROVED.toString())
-                || status.equals(TransactionStatus.TRANSPORT.toString())
                 || status.equals(TransactionStatus.CANCEL.toString())
-                || status.equals(TransactionStatus.RECEIVED.toString())
-                || status.equals(TransactionStatus.SUCCESSFUL_TRANSPORT.toString());
+                || status.equals(TransactionStatus.SUCCESSFUL.toString());
     }
 
 }

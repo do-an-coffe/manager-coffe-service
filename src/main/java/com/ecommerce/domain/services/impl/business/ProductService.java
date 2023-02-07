@@ -22,12 +22,6 @@ public class ProductService extends BaseService {
     return mapperUtil.mapEntityPageIntoDtoPage(productPage, ProductResponse.class);
   }
 
-  public Product findById(Long id) {
-    Product product = productStorage.findProductsById(id);
-    //todo: xu ly cache
-    return product;
-  }
-
   public ProductResponse detail(Long id){
     Product product = productStorage.findProductsById(id);
     if(product == null){
@@ -59,7 +53,7 @@ public class ProductService extends BaseService {
     return productStorage.save(product);
   }
   public Product update(Long id, ProductDto dto) {
-    Product product = findById(id);
+    Product product = findProductById(id);
     if(product == null){
       throw new ResourceNotFoundException("Not found product with id: " + id);
     }
@@ -80,7 +74,7 @@ public class ProductService extends BaseService {
   }
 
   public boolean delete(Long id) {
-    Product product = findById(id);
+    Product product = findProductById(id);
     if(product == null){
       throw new ResourceNotFoundException("Not found product with id: " + id);
     }

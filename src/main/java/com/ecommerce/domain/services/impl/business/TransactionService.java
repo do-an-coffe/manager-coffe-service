@@ -130,7 +130,7 @@ public class TransactionService extends BaseAbtractService implements BaseServic
         transaction.setOrderSelf(orders);
         transaction.setPayment(transactionDto.getPayment());
 
-        transaction.setStatus(TransactionStatus.SUCCESSFUL.toString());
+        transaction.setStatus(TransactionStatus.WAIT_FOR_APPROVE.toString());
         productRepository.saveAll(mapProduct.values());
         transaction = transactionRepository.save(transaction);
         return transaction;

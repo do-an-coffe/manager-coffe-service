@@ -1,81 +1,55 @@
 package com.ecommerce.domain.services.impl.business;
 
-import com.ecommerce.app.dtos.DTO;
 import com.ecommerce.app.dtos.impl.SliderDto;
-import com.ecommerce.app.responses.CustomPage;
 import com.ecommerce.app.responses.SliderResponse;
 import com.ecommerce.domain.entities.business.Slider;
-import com.ecommerce.domain.services.impl.BaseAbtractService;
+import com.ecommerce.domain.services.base.BaseService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
 @Service
 @Log4j2
-public class SliderService extends BaseAbtractService implements BaseService<Slider, Long> {
+public class SliderService extends BaseService {
 
-    @Override
-    public CustomPage<Slider> findAll(Pageable pageable) {
-        Page<Slider> sliderPage = sliderRepository.findAll(pageable);
-        return new CustomPage<>(sliderPage);
-    }
+  public Page<SliderResponse> getAll(Pageable pageable){
+    Page<Slider> sliderPage = sliderStorage.findAll(pageable);
+    return mapperUtil.mapEntityPageIntoDtoPage(sliderPage, SliderResponse.class);
+  }
 
-    @Override
-    public Slider findById(HttpServletRequest request, Long id) {
-        return getSliderById(id);
-    }
+  public SliderResponse detail(Long id){
+    return modelMapper.toSliderResponse(findSliderById(id));
+  }
 
-    @Override
-    public Slider create(HttpServletRequest request, DTO dto) {
-        SliderDto sliderDto = modelMapper.map(dto, SliderDto.class);
-        Slider slider = Slider.builder()
-                .name(sliderDto.getName())
-                .link(sliderDto.getLink())
-                .status(true)
-                .build();
+  public Slider create(SliderDto dto) {
+    Slider slider = Slider.builder()
+            .name(dto.getName())
+            .link(dto.getLink())
+            .status(true)
+            .build();
 
-        sliderRepository.save(slider);
-        return slider;
-    }
+    return sliderStorage.save(slider);
+  }
 
-    @Override
-    public Slider update(HttpServletRequest request, Long id, DTO dto) {
-        SliderDto sliderDto = modelMapper.map(dto, SliderDto.class);
-        Slider slider = findById(request, id);
-        slider.setName(sliderDto.getName());
-        slider.setLink(sliderDto.getLink());
+  public Slider update(Long id, SliderDto dto) {
+    Slider slider = findSliderById(id);
+    slider.setName(dto.getName());
+    slider.setLink(dto.getLink());
 
-        sliderRepository.save(slider);
-        return slider;
-    }
+    return sliderStorage.save(slider);
+  }
 
-    @Override
-    public boolean delete(HttpServletRequest request, Long id) {
-        Slider slider = findById(request,id);
+  public boolean delete(Long id) {
+    Slider slider = findSliderById(id);
 
-        sliderRepository.delete(slider);
-        return true;
-    }
+    sliderStorage.delete(slider);
+    return true;
+  }
 
-    @Override
-    public Page<Slider> findAllByFilter(FilterDto<Slider> dto, Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public List<Slider> findAllByFilter(HttpServletRequest request) {
-        return null;
-    }
-
-    public SliderResponse changeStatus(Long id) {
-        Slider slider = getSliderById(id);
-        slider.setStatus(!slider.getStatus());
-
-        slider = sliderRepository.save(slider);
-        return modelMapper.map(slider, SliderResponse.class);
-    }
+  public SliderResponse changeStatus(Long id) {
+    Slider slider = findSliderById(id);
+    slider.setStatus(!slider.getStatus());
+    return modelMapper.toSliderResponse(sliderStorage.save(slider));
+  }
 }

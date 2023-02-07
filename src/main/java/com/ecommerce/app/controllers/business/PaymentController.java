@@ -12,13 +12,12 @@ import java.util.Map;
 @RequestMapping("/api/payment")
 public class PaymentController {
 
-	@Autowired
-  PaymentService paymentService;
+	@Autowired private PaymentService paymentService;
 
-    @PostMapping(value = "/checkout")
-    public Map<String, Object> makePayment(@RequestParam("sum") String sum){
-        return paymentService.createPayment(sum);
-    }
+  @PostMapping(value = "/checkout")
+  public Map<String, Object> makePayment(@RequestParam("sum") String sum){
+    return paymentService.createPayment(sum);
+  }
 //
 //    @PostMapping(value = "/complete")
 //    public Map<String, Object> completePayment(HttpServletRequest request, @RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId){
