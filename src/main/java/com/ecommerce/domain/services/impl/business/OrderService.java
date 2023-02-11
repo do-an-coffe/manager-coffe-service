@@ -24,7 +24,7 @@ public class OrderService extends BaseService {
   }
 
   public Order findById(Long id) {
-    Order order = orderStorage.findOrdersById(id);
+    Order order = orderStorage.findOrderById(id);
     if(order == null){
       throw new ResourceNotFoundException("Not found order with id: " + id);
     }
