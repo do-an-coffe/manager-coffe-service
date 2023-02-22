@@ -1,0 +1,20 @@
+singleServerConfig:
+  idleConnectionTimeout: 15000
+  connectTimeout: 15000
+  timeout: 10000
+  retryAttempts: 3
+  retryInterval: 1500
+  password: ${REDIS_PASSWORD:-null}
+  clientName: "ecommerce-service"
+  address: ${REDIS_ADDRESS}
+  subscriptionsPerConnection: ${REDIS_SUBSCRIPTION_PER_CONNECTION:-5}
+  subscriptionConnectionMinimumIdleSize: ${REDIS_SUBSCRIPTION_CONNECTION_MINIMUM_IDLE_SIZE:-1}
+  subscriptionConnectionPoolSize: ${REDIS_SUBSCRIPTION_CONNECTION_POOL_SIZE:-50}
+  connectionMinimumIdleSize: ${REDIS_CONNECTION_MINIMUM_IDLE_SIZE:-24}
+  connectionPoolSize: ${REDIS_CONNECTION_POOL_SIZE:-64}
+  database: 0
+  dnsMonitoringInterval: 5000
+threads: ${REDIS_THREAD:-16}
+nettyThreads: ${REDIS_NETTY_THREADS:-32}
+codec: !<org.redisson.codec.FstCodec> { }
+transportMode: "NIO"

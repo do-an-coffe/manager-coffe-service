@@ -1,3 +1,4 @@
 MYSQL_URL=jdbc:mysql://localhost:3306/ecommerce_db
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=123456
+REDIS_ADDRESS=redis://localhost:6379

@@ -20,6 +20,7 @@
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <caffeine.version>3.1.2</caffeine.version>
         <redisson.version>3.17.4</redisson.version>
+        <fst.version>2.57</fst.version>
     </properties>
     <dependencies>
         <dependency>
@@ -139,6 +140,11 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.ruedigermoeller</groupId>
+            <artifactId>fst</artifactId>
+            <version>${fst.version}</version>
         </dependency>
     </dependencies>
 
