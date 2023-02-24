@@ -46,6 +46,9 @@ public class BaseAbtractService {
     @Autowired
     public ProductRatingRepository productRatingRepository;
 
+    @Autowired
+    public ProductSourceRepository productSourceRepository;
+
     public User getUserByEmail(String email) throws Exception {
         User user = userRepository.findByEmail(email);
         if (user == null)
@@ -70,6 +73,12 @@ public class BaseAbtractService {
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElseThrow(
                 () -> new CustomException(HttpStatus.NOT_FOUND, CustomErrorMessage.PRODUCT_NOT_FOUND)
+        );
+    }
+
+    public ProductSource getProductSourceById(Long id) {
+        return productSourceRepository.findById(id).orElseThrow(
+                () -> new CustomException(HttpStatus.NOT_FOUND, CustomErrorMessage.PRODUCT_SOURCE_NOT_FOUND)
         );
     }
 
