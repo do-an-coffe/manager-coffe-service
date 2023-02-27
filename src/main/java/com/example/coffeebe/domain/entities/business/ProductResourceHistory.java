@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @SuperBuilder
-@Table(name = "product_source")
+@Table(name = "product_source_history")
 public class ProductResourceHistory extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
