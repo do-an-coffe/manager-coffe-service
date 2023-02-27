@@ -17,4 +17,7 @@ public class ProductSourceDto implements DTO<ProductSource> {
 
   @NotNull(message = "quantity not null")
   private Integer quantity;
+
+  @NotNull(message = "price not null")
+  private Long price;
 }

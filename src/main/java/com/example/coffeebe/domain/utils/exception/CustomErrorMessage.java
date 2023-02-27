@@ -20,7 +20,8 @@ public enum CustomErrorMessage {
     NAME_EXISTS("Name already exists"),
     DUPLICATE_TIME_RECORD("Duplicate time record"),
     INVALID_PRODUCT_ID("ProductID invalid"),
-    PAYMENT_ERROR("Payment error");
+    PAYMENT_ERROR("Payment error"),
+    PRODUCT_RESOURCE_STATE_ERROR("Product resource state error");
 
     public final String val;
 

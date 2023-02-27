@@ -1,7 +1,6 @@
 package com.example.coffeebe.domain.entities.business;
 
 import com.example.coffeebe.domain.entities.BaseEntity;
-import com.example.coffeebe.domain.entities.enums.ProductResourceState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,29 +14,22 @@ import javax.persistence.*;
 @Entity
 @SuperBuilder
 @Table(name = "product_source")
-public class ProductSource extends BaseEntity {
+public class ProductResourceHistory extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "product_id", nullable = false)
   private Product product;
 
-  @Column(name = "quantity")
-  private Integer quantity;
+  @ManyToOne
+  @JoinColumn(name = "product_source_id", nullable = false)
+  private ProductSource productSource;
 
-  @Column(name = "price")
-  private Long price;
+  @Column(name = "pre_quantity")
+  private Integer preQuantity;
 
-  @Column(name = "total_price")
-  private Long totalPrice;
-
-  @Column(name = "status")
-  private Boolean status;
-
-  @Column(name = "state")
-  @Enumerated(EnumType.STRING)
-  private ProductResourceState state;
-
+  @Column(name = "current_quantity")
+  private Integer currentQuantity;
 }

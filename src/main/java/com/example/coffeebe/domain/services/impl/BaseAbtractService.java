@@ -49,6 +49,9 @@ public class BaseAbtractService {
     @Autowired
     public ProductSourceRepository productSourceRepository;
 
+    @Autowired
+    public ProductResourceHistoryRepository productResourceHistoryRepository;
+
     public User getUserByEmail(String email) throws Exception {
         User user = userRepository.findByEmail(email);
         if (user == null)
