@@ -5,6 +5,7 @@ import com.example.coffeebe.app.dtos.request.FilterDto;
 import com.example.coffeebe.app.dtos.request.impl.ProductSourceDto;
 import com.example.coffeebe.app.dtos.request.impl.ProductSourceStateDto;
 import com.example.coffeebe.app.dtos.responses.CustomPage;
+import com.example.coffeebe.app.dtos.responses.ProductResourceHistoryResponse;
 import com.example.coffeebe.domain.entities.business.Product;
 import com.example.coffeebe.domain.entities.business.ProductResourceHistory;
 import com.example.coffeebe.domain.entities.business.ProductSource;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -127,5 +129,16 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
               .currentQuantity(currentQuantity).build();
       productResourceHistoryRepository.save(history);
     }
+  }
+
+  public CustomPage<ProductResourceHistoryResponse> getHistory(Pageable pageable){
+    Page<ProductResourceHistory> history =  productResourceHistoryRepository.findAll(pageable);
+    CustomPage<ProductResourceHistory> page = new CustomPage<>(history);
+    CustomPage<ProductResourceHistoryResponse> customPage = new CustomPage<>();
+
+    customPage.setData(page.getData().stream().map(ele -> modelMapper.map(ele, ProductResourceHistoryResponse.class)).collect(Collectors.toList()));
+    customPage.setMetadata(new CustomPage.Metadata(page.getMetadata().getPage(), page.getMetadata().getSize(),
+            page.getMetadata().getTotal(), page.getMetadata().getTotalPage()));
+    return customPage;
   }
 }

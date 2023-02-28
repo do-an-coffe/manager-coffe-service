@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     private String JWT_SECRET = "duong";
 
     // set time jwt
-    private long JWT_EXPIRATION = 2 * 3600 * 1000;
+    private long JWT_EXPIRATION = 5 * 3600 * 1000;
 
     @Autowired
     private RoleRepository roleRepository;

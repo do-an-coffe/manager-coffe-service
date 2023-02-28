@@ -1,7 +1,5 @@
 package com.example.coffeebe.app.dtos.responses;
 
-
-import com.example.coffeebe.domain.entities.enums.ProductResourceState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductSourceResponse {
+public class ProductResourceHistoryResponse {
   private Long id;
   private ProductResponse product;
-  private Integer quantity;
-  private Long price;
-  private Long totalPrice;
-  private ProductResourceState state;
+  private ProductSourceResponse productSource;
+  private Integer preQuantity;
+  private Integer currentQuantity;
+
 }
