@@ -113,16 +113,11 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
     if(productSource.getState() == ProductResourceState.ACTIVE){
       int preQuantity;
       int currentQuantity;
-      RLock lock = lockManager.startLockProduct(product.getId());
-      try{
-        preQuantity = product.getQuantity();
-        currentQuantity = preQuantity + productSource.getQuantity();
+      preQuantity = product.getQuantity();
+      currentQuantity = preQuantity + productSource.getQuantity();
 
-        product.setQuantity(currentQuantity);
-        productRepository.save(product);
-      }finally {
-        lockManager.unLock(lock);
-      }
+      product.setQuantity(currentQuantity);
+      productRepository.save(product);
 
       ProductResourceHistory history = ProductResourceHistory.builder().product(product).productSource(productSource)
               .preQuantity(preQuantity)

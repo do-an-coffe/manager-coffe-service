@@ -21,7 +21,8 @@ public enum CustomErrorMessage {
     DUPLICATE_TIME_RECORD("Duplicate time record"),
     INVALID_PRODUCT_ID("ProductID invalid"),
     PAYMENT_ERROR("Payment error"),
-    PRODUCT_RESOURCE_STATE_ERROR("Product resource state error");
+    PRODUCT_RESOURCE_STATE_ERROR("Product resource state error"),
+    UNAUTHORIZED_ERROR("Unauthorized");
 
     public final String val;
 

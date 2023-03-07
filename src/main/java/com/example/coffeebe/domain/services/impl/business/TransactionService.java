@@ -9,6 +9,7 @@ import com.example.coffeebe.app.dtos.request.impl.TransactionStatusDto;
 import com.example.coffeebe.app.dtos.responses.CustomPage;
 import com.example.coffeebe.app.dtos.responses.DataResponse;
 import com.example.coffeebe.app.dtos.responses.TransactionResponse;
+import com.example.coffeebe.domain.entities.author.Role;
 import com.example.coffeebe.domain.entities.author.User;
 import com.example.coffeebe.domain.entities.business.Discount;
 import com.example.coffeebe.domain.entities.business.Order;
@@ -178,6 +179,10 @@ public class TransactionService extends BaseAbtractService implements BaseServic
     }
 
     public DataResponse getRevenueByYear(int year) {
+        User user = getUser();
+        if(!user.getRole().getName().equals(RoleType.ADMIN)){
+            throw new CustomException(HttpStatus.UNAUTHORIZED, CustomErrorMessage.UNAUTHORIZED_ERROR);
+        }
         List<MonthRevenue> listResponse = new ArrayList<>();
         List<MonthRevenue> result = transactionRepository.getRevenueInYear(year);
         Map<Integer, MonthRevenue> mapMonthRevenue = new HashMap<>();
