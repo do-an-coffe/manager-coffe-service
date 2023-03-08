@@ -64,8 +64,9 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
             .totalPrice(productSourceDto.getPrice() * productSourceDto.getQuantity())
             .state(ProductResourceState.ACTIVE)
             .status(true).build();
+    productSource = productSourceRepository.save(productSource);
     processUpdateProduct(product, productSource);
-    return productSourceRepository.save(productSource);
+    return productSource;
   }
 
   @Override
