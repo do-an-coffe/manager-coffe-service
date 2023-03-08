@@ -6,6 +6,7 @@ import com.example.coffeebe.app.dtos.request.impl.ProductSourceDto;
 import com.example.coffeebe.app.dtos.request.impl.ProductSourceStateDto;
 import com.example.coffeebe.app.dtos.responses.CustomPage;
 import com.example.coffeebe.app.dtos.responses.ProductResourceHistoryResponse;
+import com.example.coffeebe.app.dtos.responses.ProductShortResponse;
 import com.example.coffeebe.domain.entities.business.Product;
 import com.example.coffeebe.domain.entities.business.ProductResourceHistory;
 import com.example.coffeebe.domain.entities.business.ProductSource;
@@ -126,14 +127,19 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
     }
   }
 
-  public CustomPage<ProductResourceHistoryResponse> getHistory(Pageable pageable){
-    Page<ProductResourceHistory> history =  productResourceHistoryRepository.findAll(pageable);
-    CustomPage<ProductResourceHistory> page = new CustomPage<>(history);
-    CustomPage<ProductResourceHistoryResponse> customPage = new CustomPage<>();
+//  public CustomPage<ProductResourceHistoryResponse> getHistory(Pageable pageable){
+//    Page<ProductResourceHistory> history =  productResourceHistoryRepository.findAll(pageable);
+//    CustomPage<ProductResourceHistory> page = new CustomPage<>(history);
+//    CustomPage<ProductResourceHistoryResponse> customPage = new CustomPage<>();
+//
+//    customPage.setData(page.getData().stream().map(ele -> modelMapper.map(ele, ProductResourceHistoryResponse.class)).collect(Collectors.toList()));
+//    customPage.setMetadata(new CustomPage.Metadata(page.getMetadata().getPage(), page.getMetadata().getSize(),
+//            page.getMetadata().getTotal(), page.getMetadata().getTotalPage()));
+//    return customPage;
+//  }
 
-    customPage.setData(page.getData().stream().map(ele -> modelMapper.map(ele, ProductResourceHistoryResponse.class)).collect(Collectors.toList()));
-    customPage.setMetadata(new CustomPage.Metadata(page.getMetadata().getPage(), page.getMetadata().getSize(),
-            page.getMetadata().getTotal(), page.getMetadata().getTotalPage()));
-    return customPage;
+  public List<ProductResourceHistoryResponse> getHistory(){
+    List<ProductResourceHistory> historyList =  productResourceHistoryRepository.findAll();
+    return historyList.stream().map(history -> modelMapper.map(history, ProductResourceHistoryResponse.class)).collect(Collectors.toList());
   }
 }

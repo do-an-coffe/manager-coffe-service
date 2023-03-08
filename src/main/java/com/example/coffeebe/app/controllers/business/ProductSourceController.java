@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/product-source")
@@ -30,8 +31,13 @@ public class ProductSourceController extends BaseController<ProductSource, Long,
     return productSourceService.changeStateProductSource(id, stateDto);
   }
 
+//  @GetMapping("histories")
+//  public CustomPage<ProductResourceHistoryResponse> getHistory(Pageable pageable){
+//    return productSourceService.getHistory(pageable);
+//  }
+
   @GetMapping("histories")
-  public CustomPage<ProductResourceHistoryResponse> getHistory(Pageable pageable){
-    return productSourceService.getHistory(pageable);
+  public List<ProductResourceHistoryResponse> getHistory(){
+    return productSourceService.getHistory();
   }
 }
