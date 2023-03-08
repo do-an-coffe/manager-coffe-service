@@ -5,6 +5,7 @@ import com.example.coffeebe.app.dtos.request.FilterDto;
 import com.example.coffeebe.app.dtos.request.impl.ProductDto;
 import com.example.coffeebe.app.dtos.request.impl.ProductFilterDto;
 import com.example.coffeebe.app.dtos.responses.CustomPage;
+import com.example.coffeebe.app.dtos.responses.ProductShortResponse;
 import com.example.coffeebe.domain.entities.business.Category;
 import com.example.coffeebe.domain.entities.business.Product;
 import com.example.coffeebe.domain.services.BaseService;
@@ -27,7 +28,10 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class ProductService extends BaseAbtractService implements BaseService<Product, Long> {
-
+    public List<ProductShortResponse> getListProduct(){
+        List<Product> productList = productRepository.findAll();
+        return productList.stream().map(product -> modelMapper.map(product, ProductShortResponse.class)).collect(Collectors.toList());
+    }
     @Override
     public CustomPage<Product> findAll(Pageable pageable) {
         Page<Product> productPage =  productRepository.findAll(pageable);
