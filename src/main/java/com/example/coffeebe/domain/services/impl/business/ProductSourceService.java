@@ -49,6 +49,10 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
     return getProductSourceById(id);
   }
 
+  @Transactional(
+          propagation = Propagation.REQUIRES_NEW,
+          isolation = Isolation.SERIALIZABLE,
+          rollbackFor = {CustomException.class})
   @Override
   public ProductSource create(HttpServletRequest request, DTO dto) {
     ProductSourceDto productSourceDto = modelMapper.map(dto, ProductSourceDto.class);
@@ -58,21 +62,23 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
             .quantity(productSourceDto.getQuantity())
             .price(productSourceDto.getPrice())
             .totalPrice(productSourceDto.getPrice() * productSourceDto.getQuantity())
-            .state(ProductResourceState.NEW)
+            .state(ProductResourceState.ACTIVE)
             .status(true).build();
+    processUpdateProduct(product, productSource);
     return productSourceRepository.save(productSource);
   }
 
   @Override
   public ProductSource update(HttpServletRequest request, Long id, DTO dto) {
-    ProductSourceDto productSourceDto = modelMapper.map(dto, ProductSourceDto.class);
-    Product product = getProductById(productSourceDto.getProductId());
-    ProductSource productSource = getProductSourceById(id);
-    productSource.setProduct(product);
-    productSource.setPrice(productSourceDto.getPrice());
-    productSource.setQuantity(productSourceDto.getQuantity());
-    productSource.setTotalPrice(productSourceDto.getPrice() * productSourceDto.getQuantity());
-    return productSourceRepository.save(productSource);
+//    ProductSourceDto productSourceDto = modelMapper.map(dto, ProductSourceDto.class);
+//    Product product = getProductById(productSourceDto.getProductId());
+//    ProductSource productSource = getProductSourceById(id);
+//    productSource.setProduct(product);
+//    productSource.setPrice(productSourceDto.getPrice());
+//    productSource.setQuantity(productSourceDto.getQuantity());
+//    productSource.setTotalPrice(productSourceDto.getPrice() * productSourceDto.getQuantity());
+//    return productSourceRepository.save(productSource);
+    return null;
   }
 
   @Override
@@ -93,21 +99,21 @@ public class ProductSourceService extends BaseAbtractService implements BaseServ
     return null;
   }
 
-  @Transactional(
-          propagation = Propagation.REQUIRES_NEW,
-          isolation = Isolation.SERIALIZABLE,
-          rollbackFor = {CustomException.class})
-  public Boolean changeStateProductSource(Long id, ProductSourceStateDto stateDto){
-    ProductSource productSource = getProductSourceById(id);
-    if(productSource.getState() != ProductResourceState.NEW){
-      throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.PRODUCT_RESOURCE_STATE_ERROR);
-    }
-    productSource.setState(stateDto.getState());
-    productSourceRepository.save(productSource);
-
-    processUpdateProduct(productSource.getProduct(), productSource);
-    return true;
-  }
+//  @Transactional(
+//          propagation = Propagation.REQUIRES_NEW,
+//          isolation = Isolation.SERIALIZABLE,
+//          rollbackFor = {CustomException.class})
+//  public Boolean changeStateProductSource(Long id, ProductSourceStateDto stateDto){
+//    ProductSource productSource = getProductSourceById(id);
+//    if(productSource.getState() != ProductResourceState.NEW){
+//      throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.PRODUCT_RESOURCE_STATE_ERROR);
+//    }
+//    productSource.setState(stateDto.getState());
+//    productSourceRepository.save(productSource);
+//
+//    processUpdateProduct(productSource.getProduct(), productSource);
+//    return true;
+//  }
 
   @Transactional(propagation = Propagation.MANDATORY)
   public void processUpdateProduct(Product product, ProductSource productSource){

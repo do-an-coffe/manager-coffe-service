@@ -26,10 +26,10 @@ public class ProductSourceController extends BaseController<ProductSource, Long,
     super(ProductSourceResponse.class, ProductSourceFilterDto.class);
   }
 
-  @PutMapping("{id}/state")
-  public Boolean changeStateProductSource(@PathVariable Long id, @Valid @RequestBody ProductSourceStateDto stateDto){
-    return productSourceService.changeStateProductSource(id, stateDto);
-  }
+//  @PutMapping("{id}/state")
+//  public Boolean changeStateProductSource(@PathVariable Long id, @Valid @RequestBody ProductSourceStateDto stateDto){
+//    return productSourceService.changeStateProductSource(id, stateDto);
+//  }
 
 //  @GetMapping("histories")
 //  public CustomPage<ProductResourceHistoryResponse> getHistory(Pageable pageable){
