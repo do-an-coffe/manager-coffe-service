@@ -30,6 +30,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -134,7 +137,7 @@ public class TransactionService extends BaseAbtractService implements BaseServic
         transaction.setOrderSelf(orders);
         transaction.setPayment(transactionDto.getPayment());
 
-        transaction.setStatus(TransactionStatus.SUCCESSFUL.toString());
+        transaction.setStatus(TransactionStatus.WAIT_FOR_PAY.toString());
         productRepository.saveAll(mapProduct.values());
         transaction = transactionRepository.save(transaction);
         return transaction;
@@ -160,10 +163,17 @@ public class TransactionService extends BaseAbtractService implements BaseServic
         return null;
     }
 
-    public TransactionResponse changeStatusTransaction(Long id, DTO dto) {
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.SERIALIZABLE,
+            rollbackFor = {CustomException.class})
+    public TransactionResponse  changeStatusTransaction(Long id, DTO dto) {
         TransactionStatusDto statusDto = modelMapper.map(dto, TransactionStatusDto.class);
         User user = getUser();
         Transaction transaction = getTransactionById(id);
+        log.info("========== a " + user.getRole().getName().equals(RoleType.USER));
+        log.info("========== a " + Constant.mapStatusUser);
+        log.info("========== b "+ Constant.mapStatusUser.get(transaction.getStatus()).equals(statusDto.getStatus()));
         if ((user.getRole().getName().equals(RoleType.USER) && Constant.mapStatusUser.get(transaction.getStatus()).equals(statusDto.getStatus())) ||
                 (user.getRole().getName().equals(RoleType.ADMIN) && Constant.mapStatusAdmin.get(transaction.getStatus()).equals(statusDto.getStatus()))) {
             transaction.setStatus(statusDto.getStatus());
@@ -175,7 +185,14 @@ public class TransactionService extends BaseAbtractService implements BaseServic
             throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.TRANSACTION_STATUS_INCORRECT);
         }
         transaction = transactionRepository.save(transaction);
+        processUpdateProduct(transaction.getOrders().get(0).getProduct().getId(), transaction.getOrders().get(0).getQuantity());
         return modelMapper.map(transaction, TransactionResponse.class);
+    }
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void processUpdateProduct(Long productId, Integer amount){
+        Product product = getProductById(productId);
+        product.setQuantity(product.getQuantity() + amount);
+        productRepository.save(product);
     }
 
     public DataResponse getRevenueByYear(int year) {

@@ -12,6 +12,7 @@ public class Constant {
 
     public static final Map mapStatusUser = new HashMap<String, String>() {{
         put(TransactionStatus.WAIT_FOR_APPROVE.toString(), TransactionStatus.CANCEL.toString());
+        put(TransactionStatus.WAIT_FOR_PAY.toString(), TransactionStatus.CANCEL.toString());
         put(TransactionStatus.APPROVED.toString(), TransactionStatus.CANCEL.toString());
         put(TransactionStatus.SUCCESSFUL_TRANSPORT.toString(), TransactionStatus.RECEIVED.toString());
     }};
