@@ -185,7 +185,7 @@ public class TransactionService extends BaseAbtractService implements BaseServic
             throw new CustomException(HttpStatus.BAD_REQUEST, CustomErrorMessage.TRANSACTION_STATUS_INCORRECT);
         }
         transaction = transactionRepository.save(transaction);
-        if(Constant.mapStatusUser.get(transaction.getStatus()).equals(statusDto.getStatus())){
+        if(statusDto.getStatus().equals("CANCEL")){
             processUpdateProduct(transaction.getOrders().get(0).getProduct().getId(), transaction.getOrders().get(0).getQuantity());
         }
         return modelMapper.map(transaction, TransactionResponse.class);
